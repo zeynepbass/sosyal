@@ -126,7 +126,9 @@ const Home = () => {
           <div class="" style={{ backgroundColor: "white", borderRadius: "10px" }}>
             <h5 className='pt-2' style={{ textAlign: "center" }} >Hoşgeldin, {user?.result?.name}</h5>
             <div class="card-body">
-              <h5 class="card-title">Favorilerin</h5>
+              <h5 class="card-title">
+                
+                 {data.length===0 ? <p>Favorilerin Boş</p> : <p> Favorilerinde, {data.length} değer var </p> } </h5>
 
 
 

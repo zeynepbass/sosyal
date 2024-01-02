@@ -28,11 +28,12 @@ const favoriDelete=(id)=>{
 }
 
   return (
-    <div>
+    <div >
     {data.length === 0 ? <div className='row pt-4' style={{justifyContent:"center"}}><p style={{fontWeight:"bold",paddingTop:"50px",paddingRight:"10px "}}>Favorilerin Boş</p> <img src="/images/i-dont-know.png" width="100" height="100" ></img></div> : (
-      data.map((post) => (
-        <div className='row' key={post._id}>
-          <div className='col-4 p-0 pt-3'>
+     
+     data.map((post) => (
+        <>
+          <div className='col-md-4  p-0 pt-3'>
             <div className='card p-2' style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", borderRadius: "15px", height: "100%", position: "relative", backgroundColor: "white" }}>
               <div className='row p-0 m-0'>
                 <div className='col-6'>
@@ -54,7 +55,7 @@ const favoriDelete=(id)=>{
               </div>
             </div>
           </div>
-        </div>
+        </>
       ))
     )}
   </div>
