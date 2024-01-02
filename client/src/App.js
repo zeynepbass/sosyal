@@ -5,10 +5,11 @@ import { Route,Routes } from 'react-router-dom';
 import Home from "./pages/Home.js"
 import Signin from "./pages/Signin.js"
 import Signup from "./pages/Singup.js"
+import Favori from "./pages/Favori.js"
 function App() {
 
   return (
-    <Container maxWidth="lg">
+    <div className='container-fluid p-0 mr-0' style={{background:"#F5F0EC"}}>
 
       <Navbar />
       <Routes>
@@ -17,10 +18,11 @@ function App() {
        <Routes>
        <Route path='/signin' element={<Signin/>} />
        <Route path='/signup' element={<Signup/>} />
+       <Route path='/favori' element={<Favori/>} />
       </Routes>
     
 
-    </Container>
+    </div>
   );
 }
 

@@ -26,8 +26,8 @@ const getPost=async (req,res)=>{
 const createPost=async (req,res)=>{
 
     const post=req.body;
+    const newPost = new PostMessage({ ...post, createdAt: new Date().toISOString() });
 
-    const newPost=new PostMessage({...post,createdAt:new Date().toISOString()});
     //postun tüm alanlarını getirdik creator kullanıcının ıd tutucak saatı yerel saatı kullandık toıso kısmı saatı aktardık bu creator kısmı burda ekelndı o yuzden form kısmından sildik
 
     try {

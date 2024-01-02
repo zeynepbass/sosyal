@@ -1,15 +1,11 @@
 
 import { useState } from 'react'
-import { Container, Grow, Grid } from '@mui/material'
-import Posts from '../components/Data'
-import Form from '../components/Event'
-import { postlarGetir, postSil, createPost, postGuncelle } from '../api'
+import { postlarGetir, postSil, postGuncelle } from '../api'
 import { useEffect } from 'react'
-import { Card, CardActions, CardContent, CardMedia, Button, Typography, ButtonBase, TextField, Paper } from '@mui/material';
-import { ThumbUp, Delete, MoreHoriz, ThumbDown } from "@mui/icons-material"
 import FileBase from "react-file-base64";
 import moment from "moment"
 import axios from 'axios'
+import { Link } from 'react-router-dom';
 const Home = () => {
 
   const [currentId, setCurrentId] = useState(null)
@@ -45,7 +41,7 @@ const Home = () => {
   }
   const [postData, setPostData] = useState({
 
-    title: "",
+
     message: "",
     tags: "",
     selectedFile: "",
@@ -55,7 +51,7 @@ const Home = () => {
   const temizle = () => {
     setPostData({
 
-      title: "",
+
       message: "",
       tags: "",
       selectedFile: "",
@@ -64,6 +60,7 @@ const Home = () => {
   };
   const HandleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       if (!currentId) {
         const postDataWithUser = { ...postData, name: user?.result?.name };
@@ -73,7 +70,7 @@ const Home = () => {
           .then((response) => {
             // Assuming setPostData is a function to update the state with the response data
             setPostData(response.data);
-            console.log(postData)
+
           })
           .catch((error) => {
             // Handle error
@@ -81,189 +78,229 @@ const Home = () => {
           });
       }
       else {
-        await postGuncelle(currentId, postData)
+        await postGuncelle(currentId, { ...postData, name: user?.result?.name })
         setCurrentId(null);
       }
     }
-catch (error) {
-  console.error('Güncelleme işlemi sırasında bir hata oluştu:', error);
-      }
-      temizle();
+    catch (error) {
+      console.error('Güncelleme işlemi sırasında bir hata oluştu:', error);
     }
+    temizle();
+  }
 
-
+  const Favori = (post) => {
+    const username = user?.result?.name;
+  
+    // Eğer kullanıcı giriş yapmışsa
+    if (username) {
+      // Kullanıcının favori listesini al
+      const userFavorites = JSON.parse(localStorage.getItem(`favorites_${username}`)) || [];
+  
+      // Eğer post favorilerde yoksa, favorilere ekle
+      if (!userFavorites.some(existingPost => existingPost._id === post._id)) {
+        userFavorites.push(post);
+  
+        // Yeni favori listesini kullanıcının localStorage alanına kaydet
+        localStorage.setItem(`favorites_${username}`, JSON.stringify(userFavorites));
+      }
+    }
+  };
+  
 
   if (!user?.result?.name) {
     return (
-      <Paper sx={{ backgroundColor: '#e9ecef' }}>
-        <Typography variant='h6' align='center'>
+      <div style={{ backgroundColor: '#e9ecef' }}>
+        <h5 align='center'>
           Lütfen giriş yapınız
-        </Typography>
-      </Paper>
+        </h5>
+      </div>
     )
   }
   return (
-    <Grow in>
-      <Container>
-        <Grid container justifyContent="space-between" alignItems="stretch" spacing={3}>
-          <Grid item xs={3} sm={3}>
 
-            <div>
-              {data?.map((post) => {
-                return (
-                  <Card key={post._id} sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between", borderRadius: "15px", height: "100%", position: "relative", backgroundColor: "#edede9" }}>
-                    <CardMedia sx={{ height: 0, paddingTop: "56.25%", backgroundColor: "rgba(0,0,0,0.5)", backgroundBlendMode: "darken" }} image={post.selectedFile} title={post.title}></CardMedia>
-                    <div style={{ position: "absolute", top: "20px", color: "red", left: "20px" }}>
 
-                      <Typography variant="body2">{moment().fromNow()} </Typography>
-                    </div>
-                    <div>
+    <div className='container pt-4' style={{ justifyContent: "space-between", alignItems: "stretch" }}  >
+      <div className='row' >
 
-                      {(user?.result?.name === post.creator) && (
-                     <Button onClick={() => { 
-                      setCurrentId(post._id);
-                    
-                      const selectedPost = data.find(item => item._id === post._id);
-                    
-                      if (selectedPost) {
-                        setPostData({
-                          creator: selectedPost.creator,
-                          title: selectedPost.title,
-                          message: selectedPost.message,
-                          tags: selectedPost.tags.join(','), // tags bir dizi olduğu için join kullanarak stringe çeviriyoruz
-                          selectedFile: selectedPost.selectedFile
-                        });
-                      } else {
-                        setPostData({ creator: '', title: '', message: '', tags: '', selectedFile: '' });
-                      }
-                    }}>
-                    
-                          <MoreHoriz sx={{ position: "absolute", top: "10px", right: "20px", color: "gray" }} size="large" />
-                        </Button>
-                      )}
-                    </div>
-                    <div>
+        <div className='col-md-5 pr-3'>
+          <div class="" style={{ backgroundColor: "white", borderRadius: "10px" }}>
+            <h5 className='pt-2' style={{ textAlign: "center" }} >Hoşgeldin, {user?.result?.name}</h5>
+            <div class="card-body">
+              <h5 class="card-title">Favorilerin</h5>
 
-                      <Typography sx={{ display: "flex", justifyContent: "space-between", margin: "10px" }} variant='p' color="darkgray">{post.tags.map(tag => `#${tag} `)} </Typography>
-                      <Typography sx={{ padding: "0 10px" }} gutterBottom variant="h5" component="h2">{post.title} </Typography>
-                      <CardContent variant="p" color="darkgray">{post.message} </CardContent>
-                      <CardActions sx={{ padding: "0 8px 8px", display: "flex", justifyContent: "space-beween" }}>
 
-                        {/* <Button size="small" color="primary" disabled={!user?.result}>
-                <BegeniKontrol />
-                &nbsp;{post.likeCount}
-              </Button> */}
-                        {(user?.result?.name === post.creator) && (
-                          <Button size="small" color="primary" onClick={() => DeletePost(post._id)}>
-                            <Delete fontSzie="small" />
-                          </Button>
-                        )}
-                      </CardActions>
-
-                    </div>
-                  </Card>
-                )
-              })}
 
 
             </div>
+          </div>
+        </div>
 
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper sx={{ backgroundColor: "#e9ecef" }} >
-              <form
-                style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
-                autoComplete="off"
-                noValidate
-                onSubmit={HandleSubmit}
-              >
-                <div style={{ width: "97%", margin: "10px auto" }}>
-                  <FileBase
-                    type="file"
-                    multiple={false}
-                    onDone={({ base64 }) =>
-                      setPostData({ ...postData, selectedFile: base64 })
-                    }
-                  />
-                </div>
 
-                <Typography sx={{ marginBottom: "10px" }} variant="h6">
-                  {currentId ? "POST GÜNCELLE" : "POST EKLE"}
-                </Typography>
 
-                <TextField
-                  sx={{ margin: "5px" }}
-                  name="creator"
-                  variant="outlined"
-                  label="zccasc"
-                  fullWidth
-                  value={postData.creator}
-                  onChange={(e) =>
-                    setPostData({ ...postData, creator: e.target.value })
-                  }
-                />
-                <TextField
-                  sx={{ margin: "5px" }}
-                  name="title"
-                  variant="outlined"
-                  label="Oluşturan"
-                  fullWidth
-                  value={postData.title}
-                  onChange={(e) => setPostData({ ...postData, title: e.target.value })}
-                />
-                <TextField
-                  sx={{ margin: "5px" }}
+
+        <div className='col-md-7 p-0 m-0' >
+          <div className="p-3" style={{ backgroundColor: "white", borderRadius: "10px" }} >
+            <h5 style={{ marginBottom: "10px", textAlign: "center" }} >
+              {currentId ? "POST GÜNCELLE" : "POST EKLE"}
+            </h5><br></br>
+            <form onSubmit={HandleSubmit}
+              style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}
+
+
+            >
+
+
+
+
+              {/* 
+            <input
+              style={{ margin: "5px" }}
+              name="title"
+              variant="outlined"
+              label="Oluşturan"
+              fullWidth
+              value={postData.title}
+              onChange={(e) => setPostData({ ...postData, title: e.target.value })}
+            /> */}
+              <div className="form-group w-100">
+                <input
+                  style={{ margin: "5px" }}
                   name="message"
-                  variant="outlined"
-                  label="Oluşturan"
-                  fullWidth
-                  multiline
-                  rows={4}
+
+
+
+                  placeholder='message'
+                  className='form-control'
+
                   value={postData.message}
                   onChange={(e) =>
                     setPostData({ ...postData, message: e.target.value })
                   }
-                />
-                <TextField
-                  sx={{ margin: "5px" }}
+                /></div>
+              <div className="form-group w-100">
+                <input
+                  style={{ margin: "5px" }}
                   name="tags"
-                  variant="outlined"
-                  label="Oluşturan"
-                  fullWidth
+                  placeholder='tags'
+                  className='form-control'
                   value={postData.tags}
                   onChange={(e) =>
                     setPostData({ ...postData, tags: e.target.value.split(",") })
                   }
+                /></div>
+              <div style={{ width: "97%", margin: "10px auto" }}>
+                <FileBase
+                  type="file"
+                  multiple={false}
+                  onDone={({ base64 }) =>
+                    setPostData({ ...postData, selectedFile: base64 })
+                  }
+
                 />
 
-                <Button
-                  sx={{ marginBottom: "10px" }}
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  type="submit"
-                  fullWidth
-                >
-                  {currentId ? "GÜNCELLE" : "EKLE"}
-                </Button>
 
-                <Button
-                  sx={{ marginBottom: "10px" }}
-                  variant="contained"
-                  color="secondary"
-                  size="small"
-                  onClick={temizle}
-                  fullWidth
+              </div>
 
-                >
-                  Temizle
-                </Button>
-              </form>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
-    </Grow>
+
+
+
+
+
+
+              <button type="submit" data-dismiss="modal" className="btn btn-primary" style={{ height: "40px", borderRadius: "50px", width: "100px", background: "#0a66c2" }}>
+                {currentId ? "GÜNCELLE" : "Gönderi"}
+              </button>
+
+
+
+            </form>
+
+          </div>
+          <hr></hr>
+          {data?.map((post) => {
+            return (
+              <>
+                <div className='row'>
+
+
+
+                  <div className='col-md-12  p-0 pt-3 ' key={post._id}>
+                    <div className='card p-2' style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", borderRadius: "15px", height: "100%", position: "relative", backgroundColor: "white" }}>
+
+                      <div className='row p-0 m-0' >
+                        <div className='col-6 '>
+
+
+
+
+                          <h5 style={{ color: "black", fontSize: "15px" }}>{user.result.name}  </h5>
+                          <h6 >{moment().fromNow()} </h6>
+                        </div>
+                        <div className='col-6'>
+
+
+                          {(user?.result?.name === post?.name) && (
+
+                            <i class="fa-solid fa-pencil pt-2 mt-2" style={{ float: "right", paddingBottom: "10px", color: "gray" }} onClick={() => {
+                              setCurrentId(post._id);
+
+                              const selectedPost = data.find(item => item._id === post._id);
+
+                              if (selectedPost) {
+                                setPostData({
+
+
+                                  message: selectedPost.message,
+                                  tags: selectedPost.tags.join(','), // tags bir dizi olduğu için join kullanarak stringe çeviriyoruz
+                                  selectedFile: selectedPost.selectedFile
+                                });
+                              } else {
+                                setPostData({ message: '', tags: '', selectedFile: '' });
+                              }
+                            }}>
+
+                            </i>
+
+                          )}
+                          <Link className="nav-link mr-3 mb-2" style={{ textAlign: "right" }} ><i className="fas fa-heart" style={{ color: "gray" }} onClick={()=>Favori(post)}></i></Link>
+                        </div>
+                      </div>
+
+
+
+                      <div>
+                      </div>
+                      <div>
+                        <img src={post.selectedFile} alt='' style={{ width: "100%", height: "80%" }}></img>
+                        <h6 style={{ display: "flex", justifyContent: "space-between", margin: "10px" }} color="darkgray">{post.tags.map(tag => `#${tag} `)} </h6>
+
+                        <p className='p'>{post.message} </p>
+                        <p style={{ padding: "0 8px 8px", display: "flex", justifyContent: "space-beween" }}>
+
+                          {/* <Button size="small" color="primary" disabled={!user?.result}>
+                <BegeniKontrol />
+                &nbsp;{post.likeCount}
+              </Button> */}
+                          {(user?.result?.name === post?.name) && (
+
+                            <i className="fas fa-trash-alt" style={{cursor:"pointer"}} onClick={() => DeletePost(post._id)}></i>
+
+                          )}
+                        </p>
+
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+
+
   )
 }
 export default Home

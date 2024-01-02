@@ -52,7 +52,7 @@ const Signin = () => {
                     </Grid>
                     <Grid sx={{ marginTop: 10 }}  >
                         <Grid item>
-                            <Typography>Henüz üye değilseniz</Typography>
+                            <Typography>Henüz üye değilseniz ?</Typography>
                             <Button component={Link} to="/signup" variant='text' color="secondary" fullWidth>
                                 ÜYE OL
                             </Button>
